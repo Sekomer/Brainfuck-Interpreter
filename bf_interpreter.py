@@ -1,17 +1,16 @@
 import sys
 
-stack =[]
-turing = [0]*100000   # tape
+
+turing = [0]*30_000   # tape
 arr = open(sys.argv[1], "r").read()  # reading data from arr
 
-ptr = 1  # ptr
-stack_index_counter = 0
-stack_index = [0]
+ptr = 0  # ptr
 
 
 reading_index = 0
 while reading_index < len(arr):
 	command = arr[reading_index]
+	
 	if command == ">":
 		ptr += 1
 	
@@ -20,26 +19,45 @@ while reading_index < len(arr):
 	
 	elif command == "+":
 		turing[ptr] += 1
+		if turing[ptr] == 256:
+			turing[ptr] = 0
 	
 	elif command == "-":
 		turing[ptr] -= 1
+		if turing[ptr] == -1:
+			turing[ptr] = 255
 	
 	elif command == "[":
-		if not len(stack)==0:
-			stack_index_counter += 1
-		stack_index[stack_index_counter] = reading_index
+		if turing[ptr] == 0:
+			reading_index += 1
+			stack = []
+			while reading_index < len(arr):
+				if arr[reading_index] == "]" and not stack:
+					break
+				elif arr[reading_index] == "[":
+					stack.append("[") 
+				elif arr[reading_index] == "]":
+					stack.pop()
+				reading_index += 1
 
 	elif command == "]":
-		if turing[ptr] == 0:
-			stack_index_counter -= 1
-		else:
-			reading_index = stack_index[stack_index_counter]
+		if turing[ptr] != 0:
+			reading_index -= 1
+			stack = []
+			while reading_index > 0:
+				if arr[reading_index] == "[" and not stack:
+					break
+				elif arr[reading_index] == "]":
+					stack.append("]") 
+				elif arr[reading_index] == "[":
+					stack.pop()
+				reading_index -= 1
 
 	elif command == ".":
 		print(chr(turing[ptr]), end="") 
 	
 	elif command == ",": 
-		turing[ptr] = int(input("enter val: "))
+		turing[ptr] = ord(input("enter val: "))
 
 	reading_index += 1
 
